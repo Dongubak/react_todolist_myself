@@ -3,39 +3,67 @@ import "./App.css";
 import TodoTemplate from "./components/TodoTemplate";
 import TodoInsert from "./components/TodoInsert";
 import TodoList from "./components/TodoList";
-import { useRef, useState } from "react";
+import { useCallback, useReducer, useRef, useState } from "react";
+
+function createBulkTodos() {
+  const array = [];
+  for (let i = 1; i <= 2500; i++) {
+    array.push({
+      id: i,
+      text: `할 일 ${i}`,
+      checked: false,
+    });
+  }
+
+  return array;
+}
+
+function todoReducer(todos, action) {
+  switch (action.type) {
+    case "INSERT":
+      return [...todos, action.todo];
+    case "REMOVE":
+      return todos.filter((todo) => todo.id !== action.id);
+    case "TOGGLE":
+      return todos.map((todo) =>
+        todo.id === action.id ? { ...todo, checked: !todo.checked } : todo
+      );
+    default:
+      return todos;
+  }
+}
 
 function App() {
-  const [todos, setTodos] = useState([
-    { id: 1, text: "할일을 입력하시오", checked: false },
-  ]);
-  const id = useRef(2);
-  const onInsert = (text) => {
+  const [todos, dispatch] = useReducer(todoReducer, undefined, createBulkTodos);
+  const id = useRef(2501);
+  const onInsert = useCallback((text) => {
     const todo = {
       id: id.current,
       text,
       checked: false,
     };
-    const nextTodos = [...todos, todo];
-    setTodos(nextTodos);
+    const action = {
+      type: "INSERT",
+      todo,
+    };
+    dispatch(action);
     id.current += 1;
-  };
-  const onRemove = (id) => {
-    const nextTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(nextTodos);
-  };
-  const onToggle = (id) => {
-    const nextTodos = todos.map((todo) => {
-      if (todo.id == id) {
-        todo.checked = !todo.checked;
-      }
-      return todo;
+  }, []);
+  const onRemove = useCallback((id) => {
+    dispatch({
+      type: "REMOVE",
+      id,
     });
-    setTodos(nextTodos);
-  };
+  }, []);
+  const onToggle = useCallback((id) => {
+    dispatch({
+      type: "TOGGLE",
+      id,
+    });
+  }, []);
   return (
     <div className="App">
-      <TodoTemplate>
+      <TodoTemplate className="todo-template">
         <TodoInsert onInsert={onInsert}></TodoInsert>
         <TodoList
           todos={todos}

@@ -1,6 +1,7 @@
 import React from "react";
 import "./TodoListItem.scss";
 import cn, { css } from "classnames";
+import { MdDone, MdDelete, MdRemoveDone } from "react-icons/md";
 
 const TodoListItem = ({ todo, onRemove, onToggle }) => {
   const { text, id, checked } = todo;
@@ -12,7 +13,7 @@ const TodoListItem = ({ todo, onRemove, onToggle }) => {
             onToggle(id);
           }}
         >
-          uc
+          <MdRemoveDone></MdRemoveDone>
         </button>
       ) : (
         <button
@@ -20,7 +21,7 @@ const TodoListItem = ({ todo, onRemove, onToggle }) => {
             onToggle(id);
           }}
         >
-          c
+          <MdDone></MdDone>
         </button>
       )}
       <p>{text}</p>
@@ -29,10 +30,10 @@ const TodoListItem = ({ todo, onRemove, onToggle }) => {
           onRemove(id);
         }}
       >
-        -
+        <MdDelete></MdDelete>
       </button>
     </div>
   );
 };
 
-export default TodoListItem;
+export default React.memo(TodoListItem);
